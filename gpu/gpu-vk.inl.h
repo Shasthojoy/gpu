@@ -1,4 +1,13 @@
+
+// Include Vulkan headers here
+
 namespace gpu {
+
+    template <>
+    struct command<Vulkan> {
+
+    };
+
     template <>
     struct device<Vulkan> {
         std::string name_;
@@ -7,9 +16,22 @@ namespace gpu {
     template <>
     struct device_queue<Vulkan> {
         device_queue<Vulkan>(device<Vulkan>& dev)
-                : device_(dev) {}
+                : device_(dev) {
+        }
 
         auto get_device() { return device_; }
+
+        void push_command(command<Vulkan> const& command) {
+
+        }
+
+        void flush() {
+
+        }
+
+        void finish() {
+
+        }
 
 
         device_queue<Vulkan>(device_queue<Vulkan> const&) = delete;
