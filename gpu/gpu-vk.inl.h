@@ -54,8 +54,11 @@ namespace gpu {
         device<Vulkan> &device_;
     };
 
-    inline device_list <Vulkan> create_device_list(typename device_list<Vulkan>::flags, std::uint32_t, Vulkan) {
-        device_list<Vulkan>::ListImpl impl = { device<Vulkan>{"foo"}, device<Vulkan>{"bar"}};
+    inline device_list <Vulkan> create_device_list(
+        typename device_list<Vulkan>::flags, std::uint32_t, Vulkan) {
+        device_list<Vulkan>::ListImpl impl = { 
+            device<Vulkan>{"foo"}, 
+            device<Vulkan>{"bar"}};
         return device_list<Vulkan>(std::move(impl));
     }
 }
