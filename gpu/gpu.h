@@ -1,3 +1,6 @@
+// Device abstraction layer is aimed at exposing uniform API
+// for higher level components which they can use to talk to
+// an underlying GPU(s).
 #pragma once
 
 #include <cstdint>
@@ -6,7 +9,7 @@
 #include <tuple>
 
 namespace gpu {
-
+    // API selector tags.
     struct OpenCL {
     };
     struct Metal {
@@ -14,26 +17,27 @@ namespace gpu {
     struct Vulkan {
     };
 
-    template<typename Tag>
-    struct device_queue;
-
+    // Represents GPU device with private physical and virtual memory spaces
+    // and capable of asynchronous kernels execution.
     template<typename Tag>
     struct device {
     };
 
-    template<typename Tag>
-    struct fence {
-    };
-
+    // Represents a queue of commands the device executes. Devices are required
+    // to support at least one default queue, but are free to support more.
     template<typename Tag>
     struct device_queue {
     };
 
+    // Represents typed region of virtual device memory space. Buffers support 
+    // custom polymorphic allocators (stateful, supplied at construction time,
+    // not included into buffer static type) and STL-style iterator-based 
+    // initialization.
     template <typename Tag, typename T>
     struct buffer {
-
     };
 
+    // Represents an iterable colleciton of devices.
     template<typename Tag>
     class device_list {
     public:
@@ -47,25 +51,18 @@ namespace gpu {
         using const_iterator = typename ListImpl::const_iterator;
 
         device<Tag> &operator[](std::size_t idx) { return devices_[idx]; }
-
         auto begin() { return devices_.begin(); }
-
         auto end() { return devices_.end(); }
-
         auto cbegin() { return devices_.cbegin(); }
-
         auto cend() { return devices_.cend(); }
 
         device_list(device_list<Tag> const &rhs) = delete;
-
-        device_list<Tag> &operator=(device_list<Tag> const &rhs) = delete;
-
         device_list(device_list<Tag> &&rhs)
                 : devices_(std::move(rhs.devices_)) {}
-
         device_list(ListImpl &&devices)
                 : devices_(std::move(devices)) {}
 
+        device_list<Tag> &operator=(device_list<Tag> const &rhs) = delete;
         device_list<Tag> &operator=(device_list<Tag> &&rhs) {
             devices_ = std::move(rhs.devices_);
             return *this;

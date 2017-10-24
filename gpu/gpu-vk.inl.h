@@ -15,23 +15,28 @@ namespace gpu {
 
         auto get_device() { return device_; }
 
-        template <typename T> void push_command(command::copy<Vulkan, T> const&) {
+        template <typename T>
+        void push_command(command::copy<Vulkan, T> const&) {
 
         }
 
-        template <typename T> void push_command(command::fill<Vulkan, T> const&) {
+        template <typename T>
+        void push_command(command::fill<Vulkan, T> const&) {
 
         }
 
-        template <typename T> void push_command(command::read<Vulkan, T> const&) {
+        template <typename T>
+        void push_command(command::read<Vulkan, T> const&) {
 
         }
 
-        template <typename T> void push_command(command::write<Vulkan, T> const&) {
+        template <typename T>
+        void push_command(command::write<Vulkan, T> const&) {
 
         }
 
-        template <typename ...T> void push_command(command::launch<Vulkan, T...> const&) {
+        template <typename ...T>
+        void push_command(command::launch<Vulkan, T...> const&) {
 
         }
 
