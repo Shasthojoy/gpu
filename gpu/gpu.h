@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <tuple>
 
 namespace gpu {
 
@@ -25,11 +26,12 @@ namespace gpu {
     };
 
     template<typename Tag>
-    struct command {
+    struct device_queue {
     };
 
-    template<typename Tag>
-    struct device_queue {
+    template <typename Tag, typename T>
+    struct buffer {
+
     };
 
     template<typename Tag>
@@ -72,6 +74,38 @@ namespace gpu {
     private:
         ListImpl devices_;
     };
+
+    namespace command {
+        template <typename Tag, typename T>
+        struct copy {
+            buffer<Tag, T> src;
+            buffer<Tag, T> dst;
+        };
+
+        template <typename Tag, typename T>
+        struct fill {
+            T src;
+            buffer<Tag, T> dst;
+        };
+
+        template <typename Tag, typename T>
+        struct read {
+            buffer<Tag, T> src;
+            T* dst;
+        };
+
+        template <typename Tag, typename T>
+        struct write {
+            T* src;
+            buffer<Tag, T> dst;
+        };
+
+        template <typename Tag, typename... T>
+        struct launch {
+            std::tuple<T...> args;
+        };
+
+    }
 }
 
 #ifdef GPU_ENABLE_VULKAN

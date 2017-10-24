@@ -8,6 +8,9 @@ int main() {
 	auto& device = list[0];
     gpu::device_queue<gpu::Vulkan> queue{device};
 
+    gpu::buffer<gpu::Vulkan, int> src, dst;
+    queue.push_command(gpu::command::copy<gpu::Vulkan, int>{src, dst});
+
 	for (auto& v : list) {
 		std::cout << v.name_ << "\n";
 	}
