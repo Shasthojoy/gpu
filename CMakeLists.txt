@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.8.0)
+
+project(GPU)
+
+find_package(Vulkan)
 
 if (MSVC)
     add_compile_options(/W3 /WX)
