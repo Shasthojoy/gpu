@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <array>
 
 namespace gpu {
     // API selector tags.
@@ -74,36 +75,40 @@ namespace gpu {
         ListImpl devices_;
     };
 
+    // Command is a single unit of work submission in the queue.
+    // Example commands: kernel launch, copy data, wait on a fence.
     namespace command {
+        // Copy data between two GPU buffers.
         template <typename Tag, typename T>
         struct copy {
             buffer<Tag, T> src;
             buffer<Tag, T> dst;
         };
-
+        // Fill buffer with a constant value.
         template <typename Tag, typename T>
         struct fill {
             T src;
             buffer<Tag, T> dst;
         };
-
+        // Read data from GPU buffer into system memory.
         template <typename Tag, typename T>
         struct read {
             buffer<Tag, T> src;
             T* dst;
         };
-
+        // Write data from system memory into GPU buffer.
         template <typename Tag, typename T>
         struct write {
             T* src;
             buffer<Tag, T> dst;
         };
-
+        // Launch GPU-size function.
         template <typename Tag, typename... T>
         struct launch {
+            std::uint32_t num_dimensions;
+            std::array<std::uint32_t, 3> dimensions;
             std::tuple<T...> args;
         };
-
     }
 }
 
