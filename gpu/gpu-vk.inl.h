@@ -54,7 +54,7 @@ namespace gpu {
         MyType& operator=(MyType const&) = delete;
 
     private:
-        MyType& device_;
+        MyDevice& device_;
     };
 
     inline device_list<Vulkan> create_device_list(
