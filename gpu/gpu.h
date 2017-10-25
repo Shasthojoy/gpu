@@ -72,6 +72,7 @@ namespace gpu {
         }
 
     private:
+        // Internal container
         ListImpl devices_;
     };
 
@@ -105,7 +106,7 @@ namespace gpu {
         // Launch GPU-size function.
         template <typename Tag, typename... T>
         struct launch {
-            std::uint32_t num_dimensions;
+            std::uint32_t num_dimensions = 1;
             std::array<std::uint32_t, 3> dimensions;
             std::tuple<T...> args;
         };

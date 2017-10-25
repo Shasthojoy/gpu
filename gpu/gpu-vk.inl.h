@@ -8,8 +8,11 @@ namespace gpu {
     };
 
     template<>
-    struct device_queue<Vulkan> {
-        device_queue<Vulkan>(device<Vulkan> &dev)
+    class device_queue<Vulkan> {
+        using MyType = device_queue<Vulkan>;
+        using MyDevice = device<Vulkan>;
+    public:
+        device_queue<Vulkan>(MyDevice& dev)
                 : device_(dev) {
         }
 
@@ -46,15 +49,15 @@ namespace gpu {
         void finish() {
         }
 
-        device_queue<Vulkan>(device_queue<Vulkan> const &) = delete;
+        device_queue<Vulkan>(MyType const&) = delete;
 
-        device_queue<Vulkan> &operator=(device_queue<Vulkan> const &) = delete;
+        MyType& operator=(MyType const&) = delete;
 
     private:
-        device<Vulkan> &device_;
+        MyType& device_;
     };
 
-    inline device_list <Vulkan> create_device_list(
+    inline device_list<Vulkan> create_device_list(
         typename device_list<Vulkan>::flags, std::uint32_t, Vulkan) {
         device_list<Vulkan>::ListImpl impl = { 
             device<Vulkan>{"foo"}, 
