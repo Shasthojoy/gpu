@@ -11,3 +11,4 @@ else()
 endif()
 
 add_executable(foo main.cpp gpu/gpu.h gpu/gpu-vk.inl.h)
+target_link_libraries(foo PUBLIC Vulkan::Vulkan)

@@ -12,10 +12,14 @@ int main() {
     queue.push_command(gpu::command::copy<gpu::Vulkan, int>{src, dst});
 
     for (auto& v : list) {
-        std::cout << v.name_ << "\n";
-    }
+        std::cout << "Device name: " << v.name() << "\n";
+        std::cout << "Number of memory heaps: " << v.num_memory_heaps() << "\n";
 
-    std::cout << queue.get_device().name_ << "\n";
+        for (auto i = 0u; i < v.num_memory_heaps(); ++i) {
+            std::cout << "Heap " << i << "\n";
+            std::cout << "Size: " << v.memory_heap_size(i) << "\n";
+        }
+    }
 
     return 0;
 }

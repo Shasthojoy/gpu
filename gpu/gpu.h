@@ -26,6 +26,12 @@ namespace gpu {
 
     // Represents a queue of commands the device executes. Devices are required
     // to support at least one default queue, but are free to support more.
+    enum class device_queue_flags {
+        graphics = 1,
+        compute = 2,
+        dma = 4
+    };
+
     template<typename Tag>
     struct device_queue {
     };
