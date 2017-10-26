@@ -36,6 +36,14 @@ namespace gpu {
     struct device_queue {
     };
 
+    template<typename Tag, typename T>
+    struct device_pointer {
+    };
+
+    struct allocator {
+
+    };
+
     // Represents typed region of virtual device memory space. Buffers support 
     // custom polymorphic allocators (stateful, supplied at construction time,
     // not included into buffer static type) and STL-style iterator-based 

@@ -4,13 +4,20 @@
 
 namespace gpu {
     namespace {
+        // Vulkan instance class.
+        // High level GPU API does not support the concept
+        // of instance or platform, so for now hide this
+        // and make a singletone.
         class vk_instance {
         public:
+            // Signletone access function
             static auto& instance() {
                 static vk_instance instance;
                 return instance.instance_;
             }
 
+            // Vulkan CPP objects do not release in their destructor,
+            // so we manually release them in ours.
             ~vk_instance() {
                 instance_.destroy();
             }
@@ -37,29 +44,44 @@ namespace gpu {
         };
     }
 
+    // Vulkan device class.
+    // Vulkan has concepts of physical and logical devices, 
+    // we group both together into a single concept of device.
+    // TODO: seems like Vulkan requires to book device queues 
+    // upfront and our API allows to create queues on demand, 
+    // need to handle that.
     template<>
     struct device<Vulkan> {
         using MyType = device<Vulkan>;
     public:
         device(vk::PhysicalDevice d) noexcept
             : physical_device_(d) {
+            // We cache some properties in member vars.
+            // This call retrieves them.
             init_props();
+            // Create Vulkan logical device.
             init_logical_device();
         }
+        // Move constructor simply moves devices and
+        // properties.
         device(device&& rhs) noexcept
             : physical_device_(std::move(rhs.physical_device_))
-            , device_(std::move(rhs.device_)) {
-            init_props();
-        }
-
+            , device_(std::move(rhs.device_))
+            , memory_properties_(std::move(rhs.memory_properties_))
+            , properties_(std::move(rhs.properties_))
+            , queue_properties_(std::move(rhs.queue_properties_)) {}
+        // Destructor waits until device finished all commands and 
+        // shuts it down.
         ~device() {
             device_.waitIdle();
             device_.destroy();
         }
 
+        // Access Vulkan objects.
         auto vk_device() const noexcept { return device_; }
         auto vk_physical_device() const noexcept { return physical_device_; }
 
+        // Some device properties.
         auto name() const {
             return std::string{ properties_.deviceName };
         }
@@ -74,16 +96,19 @@ namespace gpu {
             return static_cast<std::size_t>(memory_properties_.memoryHeaps[idx].size);
         }
 
+        // Disallow device copies.
         device(MyType const&) = delete;
         MyType& operator = (MyType const&) = delete;
     private:
+        // Retrieve device properties and cache them in member vars.
         void init_props() {
             properties_ = physical_device_.getProperties();
             memory_properties_ = physical_device_.getMemoryProperties();
             queue_properties_ = physical_device_.getQueueFamilyProperties();
         }
+        // Create Vulkan logical device.
         void init_logical_device() {
-            // Look for compute queue family
+            // Look for compute queue family.
             std::uint32_t idx = 0;
             for (auto i = 0u; i < queue_properties_.size(); ++i) {
                 if (queue_properties_[i].queueFlags & vk::QueueFlagBits::eCompute) {
@@ -103,11 +128,14 @@ namespace gpu {
             device_ = physical_device_.createDevice(device_create_info);
         }
 
+        // Vulkan physical & logical devices.
         vk::PhysicalDevice physical_device_;
+        vk::Device device_;
+
+        // Cached device properties.
         vk::PhysicalDeviceMemoryProperties memory_properties_;
         vk::PhysicalDeviceProperties properties_;
         std::vector<vk::QueueFamilyProperties> queue_properties_;
-        vk::Device device_;
     };
 
     template<>
@@ -161,6 +189,20 @@ namespace gpu {
     private:
         MyDevice& device_;
         device_queue_flags flags_;
+    };
+
+    template<typename T>
+    struct device_pointer<Vulkan, T> {
+        using value_type = T;
+        using difference_type = ptrdiff_t;
+
+        device_pointer(vk::Buffer buffer, vk::DeviceSize offset)
+            : buffer_(buffer)
+            , offset_(offset) {}
+
+    private:
+        vk::Buffer buffer_;
+        vk::DeviceSize offset_;
     };
 
     inline device_list<Vulkan> create_device_list(
