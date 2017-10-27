@@ -36,21 +36,72 @@ namespace gpu {
     struct device_queue {
     };
 
-    template<typename Tag, typename T>
-    struct device_pointer {
-    };
-
-    struct allocator {
-
-    };
-
     // Represents typed region of virtual device memory space. Buffers support 
     // custom polymorphic allocators (stateful, supplied at construction time,
     // not included into buffer static type) and STL-style iterator-based 
     // initialization.
     template <typename Tag, typename T>
+    struct buffer;
+
+    template <typename Tag, typename T>
+    struct device_pointer_deref {
+        buffer<Tag, T>* buffer_;
+        std::size_t offset_;
+    };
+
+    template<typename Tag, typename T>
+    class device_pointer {
+        using MyType = device_pointer<Tag, T>;
+    public:
+        using value_type = T;
+
+        device_pointer(buffer<Tag, T>* buffer, std::size_t offset) noexcept
+        : buffer_(buffer)
+        , offset_(offset) {}
+
+        template <typename U> MyType& operator += (U value) {
+            offset_ += value;
+            return *this;
+        }
+
+        template <typename U> MyType& operator -= (U value) {
+            return operator += (-value);
+        }
+
+        template <typename U> MyType operator + (U value) const {
+            MyType res = *this;
+            res += value;
+            return res;
+        }
+
+        template <typename U> MyType operator - (U value) const {
+            return operator + (-value);
+        }
+
+        device_pointer_deref<Tag,T> operator *() {
+            return device_pointer_deref<Tag, T>(buffer_, offset_);
+        }
+
+    private:
+        buffer<Tag, T>* buffer_;
+        std::size_t offset_;
+    };
+
+    template <typename Tag, typename T, typename U>
+    inline device_pointer<Tag, T> operator + (U value, device_pointer<Tag, T> const& p) {
+        return p + value;
+    }
+
+    template <typename Tag, typename T>
     struct buffer {
     };
+
+
+    struct allocator {
+
+    };
+
+
 
     // Represents an iterable colleciton of devices.
     template<typename Tag>
@@ -97,7 +148,10 @@ namespace gpu {
         template <typename Tag, typename T>
         struct copy {
             buffer<Tag, T> src;
+            std::size_t src_offset;
             buffer<Tag, T> dst;
+            std::size_t dst_offset;
+            std::size_t size;
         };
         // Fill buffer with a constant value.
         template <typename Tag, typename T>

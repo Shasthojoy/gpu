@@ -191,19 +191,26 @@ namespace gpu {
         device_queue_flags flags_;
     };
 
-    template<typename T>
-    struct device_pointer<Vulkan, T> {
-        using value_type = T;
-        using difference_type = ptrdiff_t;
+    template <typename T>
+    class buffer<Vulkan, T> {
+        using MyType = buffer<Vulkan, T>;
+        using MyPointer = device_pointer<Vulkan, T>;
+    public:
 
-        device_pointer(vk::Buffer buffer, vk::DeviceSize offset)
-            : buffer_(buffer)
-            , offset_(offset) {}
+        // TODO: can we make this const?
+        template <typename U> MyPointer operator + (U value) {
+            return MyPointer(this, value);
+        }
 
     private:
-        vk::Buffer buffer_;
-        vk::DeviceSize offset_;
+
+
     };
+
+    template <typename T, typename U>
+    inline device_pointer<Vulkan, T> operator + (U value, buffer<Vulkan, T> const& rhs) {
+        return rhs + value;
+    }
 
     inline device_list<Vulkan> create_device_list(
         typename device_list<Vulkan>::flags, std::uint32_t, Vulkan) {
